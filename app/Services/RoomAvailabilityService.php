@@ -7,7 +7,6 @@ use App\Enums\RoomStatus;
 use App\Models\Booking;
 use App\Models\Room;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
 
 class RoomAvailabilityService
 {
@@ -26,11 +25,11 @@ class RoomAvailabilityService
         ?int $excludeBookingId = null
     ): bool {
         $room = Room::find($roomId);
-        if (!$room || $room->status !== RoomStatus::AKTIF) {
+        if (! $room || $room->status !== RoomStatus::AKTIF) {
             return false;
         }
 
-        return !$this->conflictService->hasConflict($roomId, $date, $startTime, $endTime, $excludeBookingId);
+        return ! $this->conflictService->hasConflict($roomId, $date, $startTime, $endTime, $excludeBookingId);
     }
 
     /**
@@ -77,9 +76,13 @@ class RoomAvailabilityService
 
                 $activeBooking = $roomBookings->first(function ($b) use ($slotStart, $slotEnd) {
                     $bStart = substr($b->start_time, 0, 8);
-                    if (strlen($bStart) === 5) $bStart .= ':00';
+                    if (strlen($bStart) === 5) {
+                        $bStart .= ':00';
+                    }
                     $bEnd = substr($b->end_time, 0, 8);
-                    if (strlen($bEnd) === 5) $bEnd .= ':00';
+                    if (strlen($bEnd) === 5) {
+                        $bEnd .= ':00';
+                    }
 
                     return $bStart < $slotEnd && $bEnd > $slotStart;
                 });
@@ -87,7 +90,7 @@ class RoomAvailabilityService
                 $slots[] = [
                     'hour' => sprintf('%02d:00', $h),
                     'label' => sprintf('%02d:00 - %02d:00', $h, $h + 1),
-                    'is_occupied' => (bool)$activeBooking,
+                    'is_occupied' => (bool) $activeBooking,
                     'booking' => $activeBooking ? [
                         'id' => $activeBooking->id,
                         'request_code' => $activeBooking->bookingRequest->request_code ?? '-',

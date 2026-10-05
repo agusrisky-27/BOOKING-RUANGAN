@@ -57,7 +57,18 @@ class Booking extends Model
     {
         $start = substr($this->start_time, 0, 5);
         $end = substr($this->end_time, 0, 5);
+
         return "{$start} - {$end}";
+    }
+
+    public function setStartTimeAttribute($value): void
+    {
+        $this->attributes['start_time'] = ! empty($value) ? Carbon::parse($value)->format('H:i:s') : null;
+    }
+
+    public function setEndTimeAttribute($value): void
+    {
+        $this->attributes['end_time'] = ! empty($value) ? Carbon::parse($value)->format('H:i:s') : null;
     }
 
     public function getFormattedDateAttribute(): string
